@@ -1,0 +1,34 @@
+# Dynamic Lookup Example
+{% set lookup = {
+	'Debian': {
+	   'pkg': 'apache2',
+	   'srv': 'apache2',
+	},
+	'Redhat': {
+	   'pkg': 'httpd',
+	   'srv': 'httpd',
+	},	 
+
+}%}
+
+{% set apache = lookup[salt.grains.get('os_family')] %}
+
+
+
+install_apache:
+  pkg.installed:
+    # jini mostly to fetch data
+    - name: {{ apache.pkg }}
+
+service_apache:
+  service.running:
+    - name: {{ apache.srv }}
+    - enable: False
+
+
+welcome_page:
+  file.managed:
+    - name: /var/www/html/index.html
+    - contents: |
+        <!DOCTYPE html>
+        <body><h1> Managed By Saltstack</h1></body></html>
